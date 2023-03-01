@@ -1,0 +1,2 @@
+# Parallel
+Párhuzamos algoritmusok
