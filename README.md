@@ -3,7 +3,7 @@
 ### Az összefésülő rendezés implementálása rekurzív módon.
 #### Implementációk:
 1. A szálak száma és a rekurzív hívási mélység parancssori argumentumként szabható meg
-2. Szekvenciális rekurzív változat Batcher féle páros-páratlan összefésüléssel
+2. Szekvenciális rekurzív változat
 3. Párhuzamosítás a 'pthread' függvénykönyvtár használatával
 4. Párhuzamosítás az 'OpenMP' API-val, sectionok használatával
 5. Párhuzamosítás C#-ban a 'Parallel' osztály használatával
