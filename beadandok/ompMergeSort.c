@@ -103,7 +103,17 @@ void mergeSort(int array[], int left, int right, int recursionDepth, int maxRecD
         return;
 
     int middle = left + (right - left) / 2;
-    mergeSort(array, left, middle, recursionDepth + 1,maxRecDepth);
-    mergeSort(array, middle + 1, right, recursionDepth + 1,maxRecDepth);
+    #pragma omp parallel sections
+    {
+         #pragma omp section
+            {
+                mergeSort(array, left, middle, recursionDepth + 1,maxRecDepth);
+            }
+
+            #pragma omp section
+            {
+                mergeSort(array, middle + 1, right, recursionDepth + 1,maxRecDepth);
+            }
+    }
     merge(array, left, middle, right);
 }

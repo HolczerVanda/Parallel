@@ -9,6 +9,9 @@ typedef struct {
     int* arr;
     int l;
     int r;
+    int max_rec_depth;
+    int rec_depth;
+    int maxThreads;
 } MergeSortArgs;
 
 void merge(int arr[], int l, int m, int r) {
@@ -49,9 +52,15 @@ void *mergeSort(void *args) {
     MergeSortArgs *msa = (MergeSortArgs*)args;
     int l = msa->l;
     int r = msa->r;
+    int mrd= msa->max_rec_depth;
+    int recursionDepth=msa->rec_depth;
+    int max_num_thread=msa->maxThreads;
     int* arr = msa->arr;
 
-    if (l < r) {
+    if(recursionDepth == mrd || l >= r)
+        return 0;
+    else
+    {
         int m = l + (r - l) / 2;
 
         // Create threads to sort left and right subarrays
@@ -59,19 +68,19 @@ void *mergeSort(void *args) {
         int threads_created = 0;
 
         if (threads_created < MAX_THREADS) {
-            MergeSortArgs left_args = {arr, l, m};
+            MergeSortArgs left_args = {arr, l, m,mrd,recursionDepth+1 };
             pthread_create(&left_thread, NULL, mergeSort, (void *)&left_args);
             threads_created++;
         } else {
-            mergeSort(&((MergeSortArgs){arr, l, m}));
+            mergeSort(&((MergeSortArgs){arr, l, m,mrd,recursionDepth+1}));
         }
 
         if (threads_created < MAX_THREADS) {
-            MergeSortArgs right_args = {arr, m+1, r};
+            MergeSortArgs right_args = {arr, m+1, r,mrd,recursionDepth+1};
             pthread_create(&right_thread, NULL, mergeSort, (void *)&right_args);
             threads_created++;
         } else {
-            mergeSort(&((MergeSortArgs){arr, m+1, r}));
+            mergeSort(&((MergeSortArgs){arr, m+1, r,mrd,recursionDepth+1}));
         }
 
         // Wait for threads to finish
@@ -86,11 +95,19 @@ void *mergeSort(void *args) {
     pthread_exit(NULL);
 }
 
-int main() {
-    int n = 1e5;
+int main(int argc, char *argv[]) {
+    int n = 1e4;
     srand(time(NULL));
 
-    for (int i = 1e4; i <= n; i)
+    if (argc != 3) {
+        printf("Hiba! Ket szamot kell megadni parancssori argumentumként.\n");
+        return 1;
+    }
+
+    int MAX_RECURSION_DEPTH = atoi(argv[1]);
+    int max_num_thread = atoi(argv[2]);
+
+    for (int i = 1e3; i <= n; i)
     {
         int* array = (int*) malloc(n*sizeof(int));
 
@@ -103,7 +120,7 @@ int main() {
 
         clock_t begin = clock();
 
-        MergeSortArgs args = {array, 0, n-1};
+        MergeSortArgs args = {array, 0, n-1,MAX_RECURSION_DEPTH, 0, max_num_thread};
 
         pthread_t thread;
         pthread_create(&thread, NULL, mergeSort, (void *)&args);
@@ -116,7 +133,7 @@ int main() {
 
         free(array);
 
-        i+=5000;
+        i+=1000;
     }
 
     return 0;
