@@ -4,7 +4,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        if (args.Length != 2)
+        if (args.Length != 3)
         {
             Console.WriteLine("Error!");
             return;
@@ -12,13 +12,45 @@ class Program
 
         int N = int.Parse(args[0]);
         int maxRecDepth = int.Parse(args[1]);
+        int generated = int.Parse(args[2]);
 
         float[] array = new float[N];
         Random rand = new Random();
 
-        for (int i = 0; i < N; i++)
+        if (generated == 1)
         {
-            array[i] = (float)rand.NextDouble();
+            try
+            {
+                string filename = "D:\\Egyetem\\Parallel\\beadandok\\randomNumbers.txt";
+                StreamReader file = new StreamReader(filename);
+
+                int i = 0;
+                float number;
+                string line;
+                while ((line = file.ReadLine()) != null)
+                {
+                    if (float.TryParse(line, out number))
+                    {
+                        array[i] = number;
+                        i++;
+                    }
+                }
+
+                file.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return;
+            }
+        }
+
+        else
+        {
+            for (int i = 0; i < N; i++)
+            {
+                array[i] = (float)rand.NextDouble();
+            }
         }
 
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -30,7 +62,19 @@ class Program
 
         Console.WriteLine("Elapsed time: {0}", timeSpent);
 
-        Console.ReadLine();
+        string filePath = "output.txt";
+        
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine("{0}", timeSpent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
     }
 
     static void Merge(float[] array, int left, int middle, int right)

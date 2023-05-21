@@ -3,24 +3,49 @@
 #include <time.h>
 #include "sequentialMergeSort.h"
 
+#define FILENAME "randomNumbers.txt"
+
 int main(int argc, char *argv[]) {
     
-    if (argc != 3) {
+    if (argc != 4) {
         printf("Incorrect number of command line arguments!\n");
         return 1;
     }
 
     int N = atoi(argv[1]);
     int maxRecDepth = atoi(argv[2]);
+    int generated = atoi(argv[3]);
 
     float *array;
     array = (float *)malloc(N * sizeof(float));
 
-    srand(time(NULL));
+    if(generated == 1)
+    {
+        FILE *file = fopen(FILENAME, "r");
+        if (file == NULL) {
+            printf("Error\n");
+            return 1;
+        }
 
-    for (int i = 0; i < N; i++)
-    {   
-        array[i] = ((float) rand()) / RAND_MAX;
+        int i = 0;
+        float number;
+        while(fscanf(file, "%lf", &number) == 1)
+        {
+            array[i] = number;
+            i++;
+        }
+
+        fclose(file);
+    }
+
+    else
+    {
+        srand(time(NULL));
+
+        for (int i = 0; i < N; i++)
+        {   
+            array[i] = ((float) rand()) / RAND_MAX;
+        }
     }
 
     clock_t begin = clock();
@@ -31,6 +56,15 @@ int main(int argc, char *argv[]) {
     double timeSpent = (double)(end - begin) / CLOCKS_PER_SEC;
 
     printf("Elapsed time: %lf\n", timeSpent);
+
+    FILE *output = fopen("output.txt", "a");
+    if (output == NULL) {
+        printf("Error\n");
+        return 1;
+    }
+
+    fprintf(output, "%lf\n", timeSpent);
+    fclose(output);
 
     free(array);
     

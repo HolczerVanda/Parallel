@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "pthreadMergeSort.h"
 
+#define FILENAME "randomNumbers.txt"
+
 typedef struct {
     float* array;
     int l;
@@ -15,7 +17,7 @@ typedef struct {
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 4) {
+    if (argc != 5) {
         printf("Error!\n");
         return 1;
     }
@@ -23,16 +25,38 @@ int main(int argc, char *argv[]) {
     int N = atoi(argv[1]);
     int maxRecDepth = atoi(argv[2]);
     int max_num_thread = atoi(argv[3]);
+    int generated = atoi(argv[4]);
 
     float *array;
     array = (float *)malloc(N * sizeof(float));
 
-    srand(time(NULL));
+    if(generated == 1)
+    {
+        FILE *file = fopen(FILENAME, "r");
+        if (file == NULL) {
+            printf("Error\n");
+            return 1;
+        }
+
+        int i = 0;
+        float number;
+        while(fscanf(file, "%lf", &number) == 1)
+        {
+            array[i] = number;
+            i++;
+        }
+
+        fclose(file);
+    }
+
+    else
+    {
+        srand(time(NULL));
 
     for (int i = 0; i < N; i++)
     {
         array[i] = ((float) rand()) / RAND_MAX;
-        //printf("Arr[i]: %lf\n", arr[i]);
+    }
     }
 
     clock_t begin = clock();
@@ -47,6 +71,15 @@ int main(int argc, char *argv[]) {
     double timeSpent = (double)(end - begin) / CLOCKS_PER_SEC;
 
     printf("Elapsed time: %lf\n", timeSpent);
+
+    FILE *output = fopen("output.txt", "a");
+    if (output == NULL) {
+        printf("Error\n");
+        return 1;
+    }
+
+    fprintf(output, "%lf\n", timeSpent);
+    fclose(output);
 
     free(array);
 
